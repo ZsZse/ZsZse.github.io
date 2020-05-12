@@ -124,6 +124,11 @@
             stackPanel.addControl(button);
             
             scene.clearColor = new BABYLON.Color3(0.42, 0.42, 0.42);
+
+            window.addEventListener('resize', function(){
+	            engine.resize();
+            });
+
             return scene;
         }
 
