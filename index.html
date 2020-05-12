@@ -41,6 +41,8 @@
         var canvas = document.getElementById('canvas');
         var engine = new BABYLON.Engine(canvas, true);
 
+        BABYLON.Engine.audioEngine.useCustomUnlockedButton = true; //Sound at chrome
+        
         var createScene = function () {
             //Scene object
             var scene = new BABYLON.Scene(engine);
@@ -116,6 +118,7 @@
             button.height = "100px"; 
             button.color = "transparent";
             button.onPointerUpObservable.add(function() {
+                BABYLON.Engine.audioEngine.unlock();
                 if (!audio.isPlaying) audio.play();
             });
             stackPanel.addControl(button);
