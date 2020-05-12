@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Múzeum</title>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    
+    <style>
+        html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+        #canvas {
+            width:100%;
+            height:100%;
+        }
+
+        #fpsLabel {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: xx-large;
+            color: #00c800;
+            cursor: default;
+        }
+    </style>
+</head>
+
+<body>
+<canvas id="canvas"></canvas>
+<label id="fpsLabel"></label>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+       
+        var canvas = document.getElementById('canvas');
+        var engine = new BABYLON.Engine(canvas, true);
+
+        var createScene = function () {
+            //Scene object
+            var scene = new BABYLON.Scene(engine);
+
+            //Camera
+            var camera = new BABYLON.ArcRotateCamera("Camera", 3 * Math.PI / 2, Math.PI / 8, 10, BABYLON.Vector3.Zero(), scene);
+        
+            //var camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 5,-10), scene); //Free camera
+            //camera.setTarget(BABYLON.Vector3.Zero());
+
+            camera.attachControl(canvas, false);
+
+            //var spotlight = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(0, 12, 0), 
+            //new BABYLON.Vector3(0, -1, 0), Math.PI / 4, 10, scene);
+	        //spotlight.diffuse = new BABYLON.Color3(1, 0, 0);
+
+            //Lights
+            var lightIntensity = 8;
+            var light = new BABYLON.PointLight('light1', new BABYLON.Vector3(0,5,-5), scene); light.intensity = lightIntensity;
+            var light2 = new BABYLON.PointLight('light2', new BABYLON.Vector3(0,5,5), scene); light2.intensity = lightIntensity;
+            var light3 = new BABYLON.PointLight('light3', new BABYLON.Vector3(5,5,0), scene); light3.intensity = lightIntensity;
+            var light4 = new BABYLON.PointLight('light4', new BABYLON.Vector3(-5,5,0), scene); light4.intensity = lightIntensity;
+            var light5 = new BABYLON.PointLight('light5', new BABYLON.Vector3(0,-2,0), scene); light5.intensity = lightIntensity;
+        
+            //Model names
+            var names=["kiralyportre", "bika"]; 
+            var currentName = 1;
+
+            //Material
+            var myMaterial = new BABYLON.StandardMaterial("myMaterial", scene);
+            myMaterial.ambientTexture = new BABYLON.Texture("textures/"+names[currentName]+"_base.jpg", scene);
+            myMaterial.bumpTexture = new BABYLON.Texture("textures/"+names[currentName]+"_normal.jpg", scene);
+            myMaterial.specularColor = new BABYLON.Color3(0.03, 0.03, 0.03);
+            myMaterial.maxSimultaneousLights = 16;
+            //myMaterial.bumpTexture.level = 0.2;
+        
+            //Model
+            var loadedModel;
+            BABYLON.SceneLoader.Append("models/", ""+names[currentName]+".obj", scene, function () {
+                loadedModel = scene.meshes[0];
+                //loadedModel.position.z = -1;
+                //loadedModel.rotation.y = Math.PI;
+                loadedModel.scaling = new BABYLON.Vector3(0.2,0.2,0.2);
+                loadedModel.material = myMaterial;
+
+                scene.createDefaultCamera(true, true, true);
+                
+                //Camera scroll
+                scene.activeCamera.lowerRadiusLimit = 3.5;
+                scene.activeCamera.upperRadiusLimit = 10;
+
+                //Box
+                var defaultEnv = scene.createDefaultEnvironment();
+                defaultEnv.setMainColor(BABYLON.Color3.Gray());
+            });
+
+            //Audio
+            var audio = new BABYLON.Sound("audio1", "audios/"+names[currentName]+"1.mp3", scene);
+
+            // GUI
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+            var stackPanel = new BABYLON.GUI.StackPanel();
+            stackPanel.isVertical = false;
+            stackPanel.height = "100px";
+            stackPanel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+            stackPanel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            advancedTexture.addControl(stackPanel);
+
+            //Button
+            var button = BABYLON.GUI.Button.CreateImageWithCenterTextButton("button1", "", "buttons/play_button.png");
+            button.width = "100px";
+            button.height = "100px"; 
+            button.color = "transparent";
+            button.onPointerUpObservable.add(function() {
+                if (!audio.isPlaying) audio.play();
+            });
+            stackPanel.addControl(button);
+            
+            scene.clearColor = new BABYLON.Color3(0.42, 0.42, 0.42);
+            return scene;
+        }
+
+        var scene = createScene();
+        
+        //Main loop
+        engine.runRenderLoop(function () {
+            scene.render();
+
+            //FPS
+            var fpsLabel = document.getElementById("fpsLabel");
+            fpsLabel.innerHTML = engine.getFps().toFixed() + " fps";
+        });
+    });
+</script>
+
+</body>
+</html>
